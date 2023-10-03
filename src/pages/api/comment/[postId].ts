@@ -26,8 +26,8 @@ export default async function handle(
 }
 
 
-// GET /api/comments/:postId
-// fetch all comments for a specific post
+// GET /api/comment/:postId
+// fetch all comment for a specific post
 async function handleGET(postId: string | string[] | undefined, res: NextApiResponse) {
     const comments = await prisma.comment.findMany({
       where: { postId: Number(postId) },
@@ -41,7 +41,14 @@ async function handlePOST(postId: string | string[] | undefined,
     req: NextApiRequest,
     res: NextApiResponse,
   ) {
-    const { commentContent, userId } = req.body
+
+    try {
+      const { commentContent, userId } = req.body
+
+    if (!commentContent || !userId) {
+      return res.status(400).json({ error: 'Missing commentContent or userId in request body.' });
+    }
+
     const newComment = await prisma.comment.create({
       data: {
         commentContent: commentContent,
@@ -49,7 +56,14 @@ async function handlePOST(postId: string | string[] | undefined,
         postId: Number(postId),
       },
     })
-    return res.status(201).json(newComment)
+
+      // console.log(req.body);
+      return res.status(201).json(newComment)
+    } catch (error) {
+      console.error('Error creating comment:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+      
   }
 
 // DELETE /api/comment/:postId
