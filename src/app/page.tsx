@@ -1,11 +1,14 @@
 import prisma from "../lib/prisma"
 import Post from "../components/Post"
+import Comment from "../components/Comment"
 
-export default async function Home() {
+async function Home() {
   const feed = await prisma.post.findMany({
     where: { published: true },
     include: { author: true },
   })
+  
+
   return (
     <>
       {feed.map((post) => (
@@ -13,6 +16,9 @@ export default async function Home() {
           <Post post={post} />
         </div>
       ))}
+      
+      <Comment postId={post.id}/>
     </>
   )
 }
+export default Home;
